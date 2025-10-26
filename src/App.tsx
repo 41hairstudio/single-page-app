@@ -4,8 +4,8 @@ import Hero from './components/Hero';
 import Services from './components/Services';
 import Gallery from './components/Gallery';
 import Schedule from './components/Schedule';
-import ChatbotModal from './components/ChatbotModal';
 import './App.css';
+import ChatbotModal from './components/ChatbotModal';
 
 function App() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
