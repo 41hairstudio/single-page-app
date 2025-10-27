@@ -83,14 +83,14 @@ export const getAvailableTimeSlotsForDate = (date: Date): string[] => {
     return [];
   }
   
-  // Sábados: 10:00 - 14:00
+  // Sábados: 10:00 - 13:30 (última reserva a las 13:30)
   if (day === 6) {
-    return generateTimeSlots('10:00', '14:00');
+    return generateTimeSlots('10:00', '13:30');
   }
   
-  // Lunes a Viernes: 10:00 - 14:00 y 17:00 - 20:30
+  // Lunes a Viernes: 10:00 - 13:30 y 17:00 - 20:30
   return [
-    ...generateTimeSlots('10:00', '14:00'),
+    ...generateTimeSlots('10:00', '13:30'),
     ...generateTimeSlots('17:00', '20:30')
   ];
 };

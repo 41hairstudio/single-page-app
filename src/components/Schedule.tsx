@@ -43,7 +43,7 @@ const Schedule = () => {
         <div className="schedule-list">
           <div className="schedule-item">
             <span className="schedule-day">Lunes a Viernes</span>
-            <span className="schedule-hours">10:00 - 14:00 y 17:00 - 20:30</span>
+            <span className="schedule-hours">10:00 - 14:00 y 17:00 - 21:00</span>
           </div>
           <div className="schedule-item">
             <span className="schedule-day">Sábados</span>

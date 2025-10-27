@@ -37,11 +37,24 @@ export function isOpen(date: Date, holidays: PublicHoliday[]): boolean {
   if (isSunday(date) || isHoliday(date, holidays)) {
     return false;
   }
-  return true;
+  
+  const dayOfWeek = date.getDay();
+  const currentHour = date.getHours();
+  const currentMinutes = date.getMinutes();
+  const currentTime = currentHour * 60 + currentMinutes; // Convertir a minutos
+  
+  // Saturday (6): 10:00 - 14:00
+  if (dayOfWeek === 6) {
+    return currentTime >= 600 && currentTime < 840; // 10:00 - 14:00
+  }
+  
+  // Monday to Friday (1-5): 10:00 - 14:00 y 17:00 - 21:00
+  return (currentTime >= 600 && currentTime < 840) || // 10:00 - 14:00
+         (currentTime >= 1020 && currentTime < 1260); // 17:00 - 21:00
 }
 
 export function getCurrentSchedule(date: Date, holidays: PublicHoliday[]): string {
-  if (!isOpen(date, holidays)) {
+  if (isSunday(date) || isHoliday(date, holidays)) {
     return 'Cerrado';
   }
   
@@ -53,5 +66,5 @@ export function getCurrentSchedule(date: Date, holidays: PublicHoliday[]): strin
   }
   
   // Monday to Friday (1-5)
-  return '10:00 - 14:00 y 17:00 - 20:30';
+  return '10:00 - 14:00 y 17:00 - 21:00';
 }
