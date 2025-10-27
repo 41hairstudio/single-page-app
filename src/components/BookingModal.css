@@ -349,7 +349,8 @@
 .booking-back-btn,
 .booking-next-btn,
 .booking-confirm-btn,
-.booking-done-btn {
+.booking-done-btn,
+.booking-calendar-btn {
   padding: 1rem 2rem;
   font-size: 1rem;
   font-weight: 600;
@@ -373,6 +374,17 @@
 .booking-next-btn,
 .booking-confirm-btn,
 .booking-done-btn {
+  background-color: #000;
+  color: #fff;
+}
+
+.booking-calendar-btn {
+  background-color: #fff;
+  color: #000;
+  margin-bottom: 1rem;
+}
+
+.booking-calendar-btn:hover {
   background-color: #000;
   color: #fff;
 }
@@ -505,7 +517,8 @@
   .booking-back-btn,
   .booking-next-btn,
   .booking-confirm-btn,
-  .booking-done-btn {
+  .booking-done-btn,
+  .booking-calendar-btn {
     width: 100%;
   }
 

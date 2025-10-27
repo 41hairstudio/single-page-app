@@ -8,6 +8,7 @@ import {
   saveReservation,
 } from '../utils/reservations';
 import { sendConfirmationEmails } from '../utils/emailService';
+import { generateICSFile } from '../utils/calendar';
 import { fetchSpanishHolidays } from '../utils/holidays';
 import './BookingModal.css';
 
@@ -23,6 +24,7 @@ interface BookingData {
   time: string;
   name: string;
   email: string;
+  phone: string;
 }
 
 const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
@@ -32,6 +34,7 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
     time: '',
     name: '',
     email: '',
+    phone: '',
   });
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [holidays, setHolidays] = useState<string[]>([]);
@@ -65,7 +68,7 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bookingData.name || !bookingData.email) {
+    if (!bookingData.name || !bookingData.email || !bookingData.phone) {
       setError('Por favor, completa todos los campos');
       return;
     }
@@ -96,12 +99,14 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
         time: bookingData.time,
         name: bookingData.name,
         email: bookingData.email,
+        phone: bookingData.phone,
       });
 
       // Enviar emails
       const emailSent = await sendConfirmationEmails({
         name: bookingData.name,
         email: bookingData.email,
+        phone: bookingData.phone,
         date: dateStr,
         time: bookingData.time,
       });
@@ -126,9 +131,35 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
       time: '',
       name: '',
       email: '',
+      phone: '',
     });
     setError('');
     onClose();
+  };
+
+  const handleDownloadCalendar = () => {
+    if (!bookingData.date) return;
+
+    const dateStr = formatDate(bookingData.date);
+    const icsContent = generateICSFile({
+      date: dateStr,
+      time: bookingData.time,
+      name: bookingData.name,
+      email: bookingData.email,
+      phone: bookingData.phone,
+      conRecordatorio: true, // Con recordatorio para el cliente
+    });
+
+    // Crear blob y descargarlo
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'cita-41-hair-studio.ics');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleBack = () => {
@@ -269,6 +300,17 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                     placeholder="tu@email.com"
                   />
                 </div>
+                <div className="form-group">
+                  <label htmlFor="phone">Teléfono</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    value={bookingData.phone}
+                    onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
+                    required
+                    placeholder="Ej: 600 123 456"
+                  />
+                </div>
                 <div className="form-actions">
                   <button type="button" className="booking-back-btn" onClick={handleBack}>
                     Volver
@@ -303,6 +345,10 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                   <span className="review-label">Email:</span>
                   <span className="review-value">{bookingData.email}</span>
                 </div>
+                <div className="review-item">
+                  <span className="review-label">Teléfono:</span>
+                  <span className="review-value">{bookingData.phone}</span>
+                </div>
               </div>
               <div className="form-actions">
                 <button className="booking-back-btn" onClick={handleBack}>
@@ -332,6 +378,9 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                 <p className="success-submessage">
                   Hemos enviado un correo de confirmación a {bookingData.email}
                 </p>
+                <button className="booking-calendar-btn" onClick={handleDownloadCalendar}>
+                  📅 Añadir a Calendario
+                </button>
                 <button className="booking-done-btn" onClick={handleClose}>
                   Cerrar
                 </button>

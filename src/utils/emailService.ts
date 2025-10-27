@@ -10,6 +10,7 @@ const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
 interface EmailParams {
   name: string;
   email: string;
+  phone: string;
   date: string;
   time: string;
 }
@@ -41,6 +42,7 @@ export const sendBarberEmail = async (params: EmailParams): Promise<boolean> => 
     const templateParams = {
       client_name: params.name,
       client_email: params.email,
+      client_phone: params.phone,
       date: params.date,
       time: params.time,
     };
