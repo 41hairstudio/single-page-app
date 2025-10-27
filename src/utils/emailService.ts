@@ -1,4 +1,4 @@
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser';
 
 // Configuración de EmailJS desde variables de entorno
 // Las variables deben estar definidas en el archivo .env
