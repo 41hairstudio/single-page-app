@@ -292,11 +292,27 @@
   text-decoration: line-through;
 }
 
+.no-slots-container {
+  text-align: center;
+  padding: 2rem;
+}
+
 .no-slots {
   text-align: center;
   color: #666;
   font-size: 1.1rem;
-  padding: 2rem;
+  padding: 0;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.no-slots-hint {
+  text-align: center;
+  color: #999;
+  font-size: 0.95rem;
+  padding: 0;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Form */

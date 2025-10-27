@@ -70,7 +70,7 @@ const generateTimeSlots = (start: string, end: string): string[] => {
   
   while (
     currentHour < endHour || 
-    (currentHour === endHour && currentMin < endMin)
+    (currentHour === endHour && currentMin <= endMin)
   ) {
     slots.push(`${String(currentHour).padStart(2, '0')}:${String(currentMin).padStart(2, '0')}`);
     

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import {
@@ -41,8 +41,22 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup al desmontar
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   // Cargar festivos al abrir el modal
-  useState(() => {
+  useEffect(() => {
     const loadHolidays = async () => {
       const year = new Date().getFullYear();
       const holidayData = await fetchSpanishHolidays(year);
@@ -52,12 +66,32 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
     if (isOpen) {
       loadHolidays();
     }
-  });
+  }, [isOpen]);
 
   const handleDateSelect = (date: Date) => {
     setBookingData({ ...bookingData, date });
     const slots = getAvailableTimeSlotsForDate(date);
-    setAvailableSlots(slots);
+    
+    // Filtrar slots pasados si es el día de hoy
+    const now = new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    
+    const isToday = checkDate.getTime() === today.getTime();
+    
+    const filteredSlots = isToday 
+      ? slots.filter(slot => {
+          const [hours, minutes] = slot.split(':').map(Number);
+          const slotTime = new Date(date);
+          slotTime.setHours(hours, minutes, 0, 0);
+          return slotTime > now;
+        })
+      : slots;
+    
+    setAvailableSlots(filteredSlots);
     setStep('time');
   };
 
@@ -173,8 +207,11 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    const checkDate = new Date(date);
+    checkDate.setHours(0, 0, 0, 0);
+    
     // Deshabilitar fechas pasadas
-    if (date < today) return true;
+    if (checkDate < today) return true;
     
     // Deshabilitar domingos
     if (date.getDay() === 0) return true;
@@ -182,6 +219,26 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
     // Deshabilitar festivos
     const dateStr = formatDate(date);
     if (holidays.includes(dateStr)) return true;
+    
+    // Deshabilitar el día de hoy si no quedan horas disponibles
+    const isToday = checkDate.getTime() === today.getTime();
+    if (isToday) {
+      const now = new Date();
+      const slots = getAvailableTimeSlotsForDate(date);
+      
+      // Si no hay slots (domingo u otro caso), deshabilitar
+      if (slots.length === 0) return true;
+      
+      // Verificar si hay algún slot futuro disponible
+      const hasFutureSlots = slots.some(slot => {
+        const [hours, minutes] = slot.split(':').map(Number);
+        const slotTime = new Date(date);
+        slotTime.setHours(hours, minutes, 0, 0);
+        return slotTime > now;
+      });
+      
+      if (!hasFutureSlots) return true;
+    }
     
     return false;
   };
@@ -250,7 +307,14 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
               </p>
               <div className="time-slots">
                 {availableSlots.length === 0 ? (
-                  <p className="no-slots">No hay horarios disponibles para este día</p>
+                  <div className="no-slots-container">
+                    <p className="no-slots">No hay horarios disponibles para este día</p>
+                    <p className="no-slots-hint">
+                      {bookingData.date && bookingData.date.toDateString() === new Date().toDateString()
+                        ? 'Las horas disponibles para hoy ya han pasado. Por favor, selecciona otro día.'
+                        : 'Por favor, selecciona otro día.'}
+                    </p>
+                  </div>
                 ) : (
                   availableSlots.map((slot) => {
                     const dateStr = bookingData.date ? formatDate(bookingData.date) : '';
