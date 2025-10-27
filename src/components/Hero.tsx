@@ -15,7 +15,7 @@ const Hero = () => {
         </div>
         
         <div className="hero-location">
-          <h3 className="location-title">Encuéntranos</h3>
+          <h2 className="location-title">Encuéntranos</h2>
           <p className="location-address">
             Parque de los Alcornocales, 1, Norte<br />
             41015 Sevilla
@@ -25,6 +25,7 @@ const Hero = () => {
             target="_blank"
             rel="noopener noreferrer"
             className="location-button"
+            title="Ver ubicación en Google Maps"
           >
             Ver en Google Maps
           </a>

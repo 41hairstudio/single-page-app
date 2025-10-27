@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://41hairstudio.com/sitemap.xml
+
+# Disallow access to certain paths (if any)
+# Disallow: /admin/
+# Disallow: /private/

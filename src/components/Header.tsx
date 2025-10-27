@@ -50,19 +50,31 @@ const Header = ({ onReserveClick }: HeaderProps) => {
   return (
     <header className="header">
       <div className="header-content">
-        <img src={logo} alt="Logo" className="header-logo" />
+        <img 
+          src={logo} 
+          alt="41hairstudio - Barbería Profesional en Sevilla" 
+          title="41hairstudio Logo"
+          className="header-logo" 
+        />
         
         <button 
           className={`menu-toggle ${menuOpen ? 'open' : ''}`}
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuOpen}
+          aria-controls="header-nav"
         >
           <span></span>
           <span></span>
           <span></span>
         </button>
 
-        <nav className={`header-nav ${menuOpen ? 'open' : ''}`}>
+        <nav 
+          id="header-nav"
+          className={`header-nav ${menuOpen ? 'open' : ''}`}
+          role="navigation"
+          aria-label="Navegación principal"
+        >
           <button onClick={() => scrollToSection('inicio')} className="nav-link">
             Inicio
           </button>

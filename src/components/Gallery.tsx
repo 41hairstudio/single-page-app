@@ -42,7 +42,13 @@ const Gallery = () => {
           <div ref={sliderRef} className="keen-slider">
             {images.map((src, index) => (
               <div key={index} className="keen-slider__slide">
-                <img src={src} alt={`Galería ${index + 1}`} className="gallery-image" />
+                <img 
+                  src={src} 
+                  alt={`Trabajo de barbería ${index + 1} - 41hairstudio`} 
+                  title={`Galería de trabajos ${index + 1}`}
+                  className="gallery-image" 
+                  loading="lazy"
+                />
               </div>
             ))}
           </div>

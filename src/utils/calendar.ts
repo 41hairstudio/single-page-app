@@ -34,7 +34,7 @@ export const generateICSFile = (params: {
         'BEGIN:VALARM',
         'TRIGGER:-P1D',
         'ACTION:DISPLAY',
-        'DESCRIPTION:Recordatorio: Mañana tienes cita en 41 Hair Studio',
+        'DESCRIPTION:Recordatorio: Mañana tienes cita en 41hairstudio',
         'END:VALARM',
       ]
     : [];
@@ -43,7 +43,7 @@ export const generateICSFile = (params: {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//41 Hair Studio//Booking System//ES',
+    'PRODID:-//41hairstudio//Booking System//ES',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',
@@ -51,7 +51,7 @@ export const generateICSFile = (params: {
     `DTSTAMP:${dtStamp}`,
     `DTSTART:${dtStart}`,
     `DTEND:${dtEnd}`,
-    'SUMMARY:Cita en 41 Hair Studio',
+    'SUMMARY:Cita en 41hairstudio',
     `DESCRIPTION:${description}`,
     'LOCATION:Parque de los Alcornocales\\, 1\\, Norte\\, 41015 Sevilla',
     'STATUS:CONFIRMED',
