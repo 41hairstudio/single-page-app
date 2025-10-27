@@ -4,6 +4,7 @@ import 'react-calendar/dist/Calendar.css';
 import {
   formatDate,
   getAvailableTimeSlotsForDate,
+  getReservationsForDate,
   isTimeAvailable,
   saveReservation,
 } from '../utils/reservations';
@@ -68,31 +69,50 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
     }
   }, [isOpen]);
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = async (date: Date) => {
     setBookingData({ ...bookingData, date });
-    const slots = getAvailableTimeSlotsForDate(date);
+    setLoading(true);
     
-    // Filtrar slots pasados si es el día de hoy
-    const now = new Date();
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const checkDate = new Date(date);
-    checkDate.setHours(0, 0, 0, 0);
-    
-    const isToday = checkDate.getTime() === today.getTime();
-    
-    const filteredSlots = isToday 
-      ? slots.filter(slot => {
-          const [hours, minutes] = slot.split(':').map(Number);
-          const slotTime = new Date(date);
-          slotTime.setHours(hours, minutes, 0, 0);
-          return slotTime > now;
-        })
-      : slots;
-    
-    setAvailableSlots(filteredSlots);
-    setStep('time');
+    try {
+      const slots = getAvailableTimeSlotsForDate(date);
+      
+      // Filtrar slots pasados si es el día de hoy
+      const now = new Date();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const checkDate = new Date(date);
+      checkDate.setHours(0, 0, 0, 0);
+      
+      const isToday = checkDate.getTime() === today.getTime();
+      
+      const filteredSlots = isToday 
+        ? slots.filter(slot => {
+            const [hours, minutes] = slot.split(':').map(Number);
+            const slotTime = new Date(date);
+            slotTime.setHours(hours, minutes, 0, 0);
+            return slotTime > now;
+          })
+        : slots;
+      
+      // Obtener slots ya reservados desde Firebase
+      const dateStr = formatDate(date);
+      const bookedSlots = await getReservationsForDate(dateStr);
+      
+      // Filtrar slots que ya están reservados
+      const availableFilteredSlots = filteredSlots.filter(slot => !bookedSlots.includes(slot));
+      
+      setAvailableSlots(availableFilteredSlots);
+      setStep('time');
+    } catch (error) {
+      console.error('Error al cargar horarios:', error);
+      // En caso de error, mostrar todos los slots disponibles
+      const slots = getAvailableTimeSlotsForDate(date);
+      setAvailableSlots(slots);
+      setStep('time');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleTimeSelect = (time: string) => {
@@ -120,7 +140,8 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
       const dateStr = formatDate(bookingData.date);
       
       // Verificar disponibilidad nuevamente
-      if (!isTimeAvailable(dateStr, bookingData.time)) {
+      const available = await isTimeAvailable(dateStr, bookingData.time);
+      if (!available) {
         setError('Lo sentimos, esta hora ya no está disponible. Por favor, selecciona otra.');
         setStep('time');
         setLoading(false);
@@ -128,13 +149,19 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
       }
 
       // Guardar la reserva
-      saveReservation({
+      const savedReservation = await saveReservation({
         date: dateStr,
         time: bookingData.time,
         name: bookingData.name,
         email: bookingData.email,
         phone: bookingData.phone,
       });
+
+      if (!savedReservation) {
+        setError('Error al guardar la reserva. Por favor, inténtalo de nuevo.');
+        setLoading(false);
+        return;
+      }
 
       // Enviar emails
       const emailSent = await sendConfirmationEmails({
@@ -317,14 +344,11 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                   </div>
                 ) : (
                   availableSlots.map((slot) => {
-                    const dateStr = bookingData.date ? formatDate(bookingData.date) : '';
-                    const available = isTimeAvailable(dateStr, slot);
                     return (
                       <button
                         key={slot}
-                        className={`time-slot ${!available ? 'disabled' : ''}`}
-                        onClick={() => available && handleTimeSelect(slot)}
-                        disabled={!available}
+                        className="time-slot"
+                        onClick={() => handleTimeSelect(slot)}
                       >
                         {slot}
                       </button>

@@ -1,3 +1,6 @@
+import { ref, push, get, query, orderByChild, equalTo } from 'firebase/database';
+import { database } from '../config/firebase';
+
 export interface Reservation {
   id: string;
   date: string; // formato YYYY-MM-DD
@@ -8,34 +11,66 @@ export interface Reservation {
   createdAt: string;
 }
 
-const STORAGE_KEY = 'barbershop_reservations';
+const RESERVATIONS_PATH = 'reservations';
 
-export const getReservations = (): Reservation[] => {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+export const getReservations = async (): Promise<Reservation[]> => {
+  try {
+    const reservationsRef = ref(database, RESERVATIONS_PATH);
+    const snapshot = await get(reservationsRef);
+    
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      return Object.keys(data).map(key => ({
+        id: key,
+        ...data[key]
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Error obteniendo reservas de Firebase:', error);
+    return [];
+  }
 };
 
-export const saveReservation = (reservation: Omit<Reservation, 'id' | 'createdAt'>): Reservation => {
-  const reservations = getReservations();
-  const newReservation: Reservation = {
-    ...reservation,
-    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    createdAt: new Date().toISOString(),
-  };
-  reservations.push(newReservation);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
-  return newReservation;
+export const saveReservation = async (reservation: Omit<Reservation, 'id' | 'createdAt'>): Promise<Reservation | null> => {
+  try {
+    const reservationsRef = ref(database, RESERVATIONS_PATH);
+    const newReservation = {
+      ...reservation,
+      createdAt: new Date().toISOString(),
+    };
+    
+    const newRef = await push(reservationsRef, newReservation);
+    
+    return {
+      id: newRef.key!,
+      ...newReservation
+    };
+  } catch (error) {
+    console.error('Error guardando reserva en Firebase:', error);
+    return null;
+  }
 };
 
-export const getReservationsForDate = (date: string): string[] => {
-  const reservations = getReservations();
-  return reservations
-    .filter(r => r.date === date)
-    .map(r => r.time);
+export const getReservationsForDate = async (date: string): Promise<string[]> => {
+  try {
+    const reservationsRef = ref(database, RESERVATIONS_PATH);
+    const dateQuery = query(reservationsRef, orderByChild('date'), equalTo(date));
+    const snapshot = await get(dateQuery);
+    
+    if (snapshot.exists()) {
+      const data = snapshot.val() as Record<string, Omit<Reservation, 'id'>>;
+      return Object.values(data).map(r => r.time);
+    }
+    return [];
+  } catch (error) {
+    console.error('Error obteniendo reservas para la fecha:', error);
+    return [];
+  }
 };
 
-export const isTimeAvailable = (date: string, time: string): boolean => {
-  const bookedTimes = getReservationsForDate(date);
+export const isTimeAvailable = async (date: string, time: string): Promise<boolean> => {
+  const bookedTimes = await getReservationsForDate(date);
   return !bookedTimes.includes(time);
 };
 
