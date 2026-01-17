@@ -4,9 +4,10 @@ import './Header.css';
 
 interface HeaderProps {
   onReserveClick: () => void;
+  onManageClick: () => void;
 }
 
-const Header = ({ onReserveClick }: HeaderProps) => {
+const Header = ({ onReserveClick, onManageClick }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Bloquear scroll cuando el menú está abierto
@@ -87,6 +88,18 @@ const Header = ({ onReserveClick }: HeaderProps) => {
           <button onClick={() => scrollToSection('horarios')} className="nav-link">
             Horarios
           </button>
+          <button onClick={() => scrollToSection('contacto')} className="nav-link">
+            Contacto
+          </button>
+          <button 
+            className="header-manage-btn-mobile" 
+            onClick={() => {
+              onManageClick();
+              setMenuOpen(false);
+            }}
+          >
+            Gestionar Cita
+          </button>
           <button 
             className="header-reserve-btn-mobile" 
             onClick={() => {
@@ -98,9 +111,14 @@ const Header = ({ onReserveClick }: HeaderProps) => {
           </button>
         </nav>
 
-        <button className="header-reserve-btn" onClick={onReserveClick} aria-label="Reservar ahora">
-          Reservar
-        </button>
+        <div className="header-buttons">
+          <button className="header-manage-btn" onClick={onManageClick} aria-label="Gestionar cita">
+            Gestionar Cita
+          </button>
+          <button className="header-reserve-btn" onClick={onReserveClick} aria-label="Reservar ahora">
+            Reservar
+          </button>
+        </div>
       </div>
     </header>
   );

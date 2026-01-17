@@ -240,8 +240,16 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
     // Deshabilitar fechas pasadas
     if (checkDate < today) return true;
     
+    // Deshabilitar fechas más allá de 2 meses desde hoy
+    const maxDate = new Date(today);
+    maxDate.setMonth(maxDate.getMonth() + 2);
+    if (checkDate > maxDate) return true;
+    
     // Deshabilitar domingos
     if (date.getDay() === 0) return true;
+    
+    // Deshabilitar sábados (no disponibles para reserva online)
+    if (date.getDay() === 6) return true;
     
     // Deshabilitar festivos
     const dateStr = formatDate(date);
@@ -322,6 +330,11 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                 tileDisabled={isDateDisabled}
                 locale="es-ES"
                 minDate={new Date()}
+                maxDate={(() => {
+                  const max = new Date();
+                  max.setMonth(max.getMonth() + 2);
+                  return max;
+                })()}
               />
             </div>
           )}
@@ -467,7 +480,13 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                   Hemos enviado un correo de confirmación a {bookingData.email}
                 </p>
                 <button className="booking-calendar-btn" onClick={handleDownloadCalendar}>
-                  📅 Añadir a Calendario
+                  <svg className="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  Añadir a Calendario
                 </button>
                 <button className="booking-done-btn" onClick={handleClose}>
                   Cerrar

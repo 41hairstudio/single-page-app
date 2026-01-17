@@ -47,12 +47,24 @@ const Schedule = () => {
           </div>
           <div className="schedule-item">
             <span className="schedule-day">Sábados</span>
-            <span className="schedule-hours">10:00 - 14:00</span>
+            <span className="schedule-hours saturday-note">Consultar disponibilidad</span>
           </div>
           <div className="schedule-item">
             <span className="schedule-day">Domingos y Festivos</span>
             <span className="schedule-hours">Cerrado</span>
           </div>
+        </div>
+        
+        <div className="saturday-info">
+          <p className="info-text">
+            <svg className="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Los sábados la disponibilidad varía según la demanda del mes. 
+            Por favor, contacta con nosotros para confirmar el horario.
+          </p>
         </div>
       </div>
     </section>

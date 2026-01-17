@@ -2,11 +2,16 @@
   background-color: #fff;
   color: #000;
   padding: 5rem 2rem;
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .schedule-container {
   max-width: 800px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .schedule-title {
@@ -107,6 +112,40 @@
 .schedule-hours {
   font-size: 1rem;
   font-weight: 300;
+}
+
+.saturday-note {
+  font-style: italic;
+  color: #666;
+}
+
+.schedule-item:hover .saturday-note {
+  color: #ccc;
+}
+
+.saturday-info {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f3f4f6;
+  border-left: 4px solid #000;
+  border-radius: 4px;
+}
+
+.info-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.info-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 @media (max-width: 768px) {

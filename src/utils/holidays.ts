@@ -43,9 +43,9 @@ export function isOpen(date: Date, holidays: PublicHoliday[]): boolean {
   const currentMinutes = date.getMinutes();
   const currentTime = currentHour * 60 + currentMinutes; // Convertir a minutos
   
-  // Saturday (6): 10:00 - 14:00
+  // Saturday (6): Variable según demanda - consideramos cerrado por defecto
   if (dayOfWeek === 6) {
-    return currentTime >= 600 && currentTime < 840; // 10:00 - 14:00
+    return false;
   }
   
   // Monday to Friday (1-5): 10:00 - 14:00 y 17:00 - 21:00
@@ -62,7 +62,7 @@ export function getCurrentSchedule(date: Date, holidays: PublicHoliday[]): strin
   
   // Saturday (6)
   if (dayOfWeek === 6) {
-    return '10:00 - 14:00';
+    return 'Consultar disponibilidad';
   }
   
   // Monday to Friday (1-5)

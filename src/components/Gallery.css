@@ -2,11 +2,16 @@
   background-color: #000;
   color: #fff;
   padding: 5rem 2rem;
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .gallery-container {
   max-width: 1000px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .gallery-title {

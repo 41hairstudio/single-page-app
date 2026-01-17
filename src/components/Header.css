@@ -4,7 +4,7 @@
   z-index: 100;
   background-color: #000;
   color: #fff;
-  padding: 1rem 2rem;
+  padding: 1.5rem 3rem;
   border-bottom: 2px solid #fff;
 }
 
@@ -111,8 +111,60 @@
   border: 2px solid #fff;
 }
 
-.header-reserve-btn-mobile {
+.header-manage-btn {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 0.8rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.header-manage-btn:hover {
+  background-color: #fff;
+  color: #000;
+  border: 2px solid #fff;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.header-reserve-btn-mobile,
+.header-manage-btn-mobile {
   display: none;
+}
+
+/* Breakpoint para tablets y pantallas medianas */
+@media (max-width: 1024px) {
+  .header {
+    padding: 1.2rem 2rem;
+  }
+
+  .header-nav {
+    gap: 1rem;
+  }
+
+  .nav-link {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .header-buttons {
+    gap: 0.5rem;
+  }
+
+  .header-reserve-btn,
+  .header-manage-btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -152,10 +204,11 @@
     font-size: 1.5rem;
   }
 
-  .header-reserve-btn {
+  .header-buttons {
     display: none;
   }
 
+  .header-manage-btn-mobile,
   .header-reserve-btn-mobile {
     display: block;
     background-color: #fff;
@@ -167,6 +220,16 @@
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 1px;
+  }
+
+  .header-manage-btn-mobile {
+    background-color: #000;
+    color: #fff;
+  }
+
+  .header-manage-btn-mobile:hover {
+    background-color: #fff;
+    color: #000;
   }
 
   .header-reserve-btn-mobile:hover {

@@ -1,26 +1,31 @@
 import { useState } from 'react';
-import './Hero.css';
+import './Location.css';
 
-const Hero = () => {
+const Location = () => {
   const [showMapOptions, setShowMapOptions] = useState(false);
   
-  const address = "Parque de los Alcornocales, 1, Norte, 41015 Sevilla";
+  // Coordenadas de la peluquería (reemplaza con las coordenadas reales)
+  const address = "Calle Ejemplo 123, Sevilla";
+  const coordinates = {
+    lat: 37.3891,
+    lng: -5.9845
+  };
 
   const handleOpenMap = () => {
     setShowMapOptions(true);
   };
 
   const handleMapChoice = (mapType: 'google' | 'apple') => {
-    const encodedAddress = encodeURIComponent(address);
-    
     if (mapType === 'google') {
+      // Google Maps
       window.open(
-        `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`,
+        `https://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}`,
         '_blank'
       );
     } else {
+      // Apple Maps
       window.open(
-        `http://maps.apple.com/?q=${encodedAddress}`,
+        `http://maps.apple.com/?q=${coordinates.lat},${coordinates.lng}`,
         '_blank'
       );
     }
@@ -28,24 +33,16 @@ const Hero = () => {
   };
 
   return (
-    <section className="hero" id="inicio">
-      <div className="hero-container">
-        <div className="hero-content">
-          <h1 className="hero-title">Bienvenido a 41hairstudio</h1>
-          <p className="hero-subtitle">
-            Tu barbería de confianza en Sevilla. Ofrezco servicios profesionales 
-            de peluquería y barbería con un estilo único y personalizado. 
-            Mi compromiso es la excelencia y la satisfacción de cada cliente, 
-            brindando una atención completamente personalizada.
-          </p>
-        </div>
+    <section className="location" id="ubicacion">
+      <div className="location-container">
+        <h2 className="location-title">Dónde Estamos</h2>
         
-        <div className="hero-location">
-          <div className="map-embed-container">
+        <div className="location-content">
+          <div className="map-container">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3170.699885817845!2d-5.9524!3d37.4228!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd1269e7737572d9%3A0x955c282366bfb48!2sParque%20de%20los%20Alcornocales%2C%201%2C%20Norte%2C%2041015%20Sevilla!5e0!3m2!1ses!2ses!4v1234567890123!5m2!1ses!2ses"
+              src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3170.123456789!2d${coordinates.lng}!3d${coordinates.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzfCsDIzJzIwLjgiTiA1wrA1OScwNC4yIlc!5e0!3m2!1ses!2ses!4v1234567890123!5m2!1ses!2ses`}
               width="100%"
-              height="300"
+              height="450"
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
@@ -53,16 +50,30 @@ const Hero = () => {
               title="Ubicación de 41 Hair Studio"
             ></iframe>
           </div>
-          <button 
-            onClick={handleOpenMap}
-            className="location-button"
-            title="Ver ubicación en mapa"
-          >
-            <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-            </svg>
-            Ver en Mapa
-          </button>
+
+          <div className="location-info">
+            <div className="info-card">
+              <h3 className="info-title">
+                <svg className="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                Dirección
+              </h3>
+              <p className="info-text">{address}</p>
+            </div>
+
+            <button onClick={handleOpenMap} className="map-button">
+              <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+              </svg>
+              Abrir en Mapa
+            </button>
+
+            <p className="info-note">
+              También puedes encontrarnos fácilmente buscando "41 Hair Studio" en tu aplicación de mapas favorita.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -106,4 +117,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default Location;
