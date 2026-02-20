@@ -7,7 +7,7 @@ import {
   getReservationsForDate,
   isTimeAvailable,
   saveReservation,
-} from '../utils/reservations';
+} from '../utils/notionReservations';
 import { sendConfirmationEmails } from '../utils/emailService';
 import { generateICSFile } from '../utils/calendar';
 import { fetchSpanishHolidays } from '../utils/holidays';
@@ -41,6 +41,8 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
   const [holidays, setHolidays] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; email?: string; phone?: string }>({});
 
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -95,7 +97,7 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
           })
         : slots;
       
-      // Obtener slots ya reservados desde Firebase
+      // Obtener slots ya reservados desde Notion
       const dateStr = formatDate(date);
       const bookedSlots = await getReservationsForDate(dateStr);
       
@@ -122,10 +124,31 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bookingData.name || !bookingData.email || !bookingData.phone) {
-      setError('Por favor, completa todos los campos');
+    const errors: { name?: string; email?: string; phone?: string } = {};
+
+    if (!bookingData.name.trim()) {
+      errors.name = 'El nombre es obligatorio';
+    }
+
+    if (!bookingData.email.trim()) {
+      errors.email = 'El correo electrónico es obligatorio';
+    } else if (!/^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/.test(bookingData.email)) {
+      errors.email = 'Introduce un correo electrónico válido';
+    }
+
+    const digitsOnly = bookingData.phone.replace(/\s/g, '');
+    if (!digitsOnly) {
+      errors.phone = 'El teléfono es obligatorio';
+    } else if (digitsOnly.length !== 9) {
+      errors.phone = 'El teléfono debe tener exactamente 9 dígitos';
+    }
+
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
       return;
     }
+
     setError('');
     setStep('review');
   };
@@ -195,6 +218,7 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
       phone: '',
     });
     setError('');
+    setFieldErrors({});
     onClose();
   };
 
@@ -225,6 +249,7 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
 
   const handleBack = () => {
     setError('');
+    setFieldErrors({});
     if (step === 'time') setStep('date');
     else if (step === 'form') setStep('time');
     else if (step === 'review') setStep('form');
@@ -378,17 +403,21 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
           {step === 'form' && (
             <div className="booking-step">
               <h2 className="booking-title">Tus datos</h2>
-              <form onSubmit={handleFormSubmit} className="booking-form">
+              <form onSubmit={handleFormSubmit} className="booking-form" noValidate>
                 <div className="form-group">
                   <label htmlFor="name">Nombre completo</label>
                   <input
                     type="text"
                     id="name"
                     value={bookingData.name}
-                    onChange={(e) => setBookingData({ ...bookingData, name: e.target.value })}
-                    required
+                    onChange={(e) => {
+                      setBookingData({ ...bookingData, name: e.target.value });
+                      if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: undefined });
+                    }}
                     placeholder="Escribe tu nombre"
+                    className={fieldErrors.name ? 'input-error' : ''}
                   />
+                  {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
                 </div>
                 <div className="form-group">
                   <label htmlFor="email">Correo electrónico</label>
@@ -396,21 +425,34 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                     type="email"
                     id="email"
                     value={bookingData.email}
-                    onChange={(e) => setBookingData({ ...bookingData, email: e.target.value })}
-                    required
+                    onChange={(e) => {
+                      setBookingData({ ...bookingData, email: e.target.value });
+                      if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: undefined });
+                    }}
                     placeholder="tu@email.com"
+                    className={fieldErrors.email ? 'input-error' : ''}
                   />
+                  {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
                 </div>
                 <div className="form-group">
                   <label htmlFor="phone">Teléfono</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    value={bookingData.phone}
-                    onChange={(e) => setBookingData({ ...bookingData, phone: e.target.value })}
-                    required
-                    placeholder="Ej: 600 123 456"
-                  />
+                  <div className="phone-input-wrapper">
+                    <span className="phone-prefix">+34</span>
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={bookingData.phone}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, '').slice(0, 9);
+                        setBookingData({ ...bookingData, phone: raw });
+                        if (fieldErrors.phone) setFieldErrors({ ...fieldErrors, phone: undefined });
+                      }}
+                      placeholder="600123456"
+                      maxLength={9}
+                      className={fieldErrors.phone ? 'input-error' : ''}
+                    />
+                  </div>
+                  {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
                 </div>
                 <div className="form-actions">
                   <button type="button" className="booking-back-btn" onClick={handleBack}>
@@ -448,7 +490,7 @@ const BookingModal = ({ isOpen, onClose }: BookingModalProps) => {
                 </div>
                 <div className="review-item">
                   <span className="review-label">Teléfono:</span>
-                  <span className="review-value">{bookingData.phone}</span>
+                  <span className="review-value">+34 {bookingData.phone}</span>
                 </div>
               </div>
               <div className="form-actions">

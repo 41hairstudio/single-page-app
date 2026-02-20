@@ -10,7 +10,7 @@ import {
   getReservationsForDate,
   isTimeAvailableForUpdate,
   type Reservation,
-} from '../utils/reservations';
+} from '../utils/notionReservations';
 import './ManageBookingModal.css';
 
 interface ManageBookingModalProps {
@@ -132,11 +132,16 @@ const ManageBookingModal = ({ isOpen, onClose }: ManageBookingModalProps) => {
       const dateStr = formatDate(date);
       const bookedSlots = await getReservationsForDate(dateStr);
       
-      // Filtrar slots que ya están reservados
-      const availableFilteredSlots = filteredSlots.filter(slot => 
-        !bookedSlots.includes(slot) || 
-        (selectedReservation && selectedReservation.date === dateStr && selectedReservation.time === slot)
-      );
+      // Filtrar slots que ya están reservados (excluyendo la reserva actual)
+      // Pero también excluir el mismo día+hora de la reserva original (no tiene sentido "modificar" sin cambiar nada)
+      const availableFilteredSlots = filteredSlots.filter(slot => {
+        const isBookedByOthers = bookedSlots.includes(slot);
+        const isCurrentReservationSlot = selectedReservation && selectedReservation.date === dateStr && selectedReservation.time === slot;
+        
+        // Permitir el slot si no está reservado por otros, pero excluir el slot idéntico a la reserva actual
+        if (isCurrentReservationSlot) return false;
+        return !isBookedByOthers;
+      });
       
       setAvailableSlots(availableFilteredSlots);
       setStep('edit-time');
